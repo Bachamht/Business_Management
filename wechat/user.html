@@ -1,0 +1,458 @@
+﻿<!DOCTYPE html>
+<html lang="zh-CN">
+	<head>
+		<title>用户界面</title>
+		<meta charset="UTF-8" />
+		<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+		<link rel="stylesheet" href="/wechat/css/bootstrap.min.css" />
+		<link rel="stylesheet" href="/wechat/css/bootstrap-responsive.min.css" />
+		<link rel="stylesheet" href="/wechat/css/matrix-style.css" />
+		<link rel="stylesheet" href="/wechat/css/matrix-media.css" />
+		<link href="/wechat/font-awesome/css/font-awesome.css" rel="stylesheet" />
+		<link href="/wechat/tabulator/css/tabulator_simple.min.css" rel="stylesheet" />
+	</head>
+
+	<body>
+		<!--Header-part-->
+		<div id="header">
+			<h1></h1>
+		</div>
+		<!--close-Header-part-->
+		<!--sidebar-menu-->
+		<div id="sidebar">
+			<a href="#" class="visible-phone"><i class="icon icon-home"></i> 快速导航</a>
+			<ul>
+				<li id="option_main" class="option">
+					<a href="javascript:ShowPage('main')"><i class="icon icon-home"></i> <span>首页</span></a>
+				</li>
+				<li id="option_add" class="option">
+					<a href="javascript:ShowPage('add')"><i class="icon icon-signal"></i>
+						<span>新增业务</span></a>
+				</li>
+				<li id="option_modify" class="option">
+					<a href="javascript:ShowPage('modify')"><i class="icon icon-inbox"></i>
+						<span>进度跟进</span></a>
+				</li>
+				<li id="option_history" class="option">
+					<a href="javascript:ShowPage('history')"><i class="icon icon-th"></i> <span>历史业务</span></a>
+				</li>
+				<li id="option_conflict" class="option">
+					<a href="javascript:ShowPage('conflict')"><i class="icon icon-fullscreen"></i>
+						<span>冲突情况</span></a>
+				</li>
+				<li id="option_info" class="option">
+					<a href="javascript:ShowPage('info')"><i class="icon icon-tint"></i> <span>个人信息</span></a>
+				</li>
+			</ul>
+		</div>
+		<!--sidebar-menu-->
+		<!--main-container-part-->
+		<div id="content">
+			<!--breadcrumbs-->
+			<div id="content-header">
+				<div id="breadcrumb">
+					<a href="javascript:ShowPage('main')" title="Go to Home" class="tip-bottom"><i
+							class="icon-home"></i> 首页</a>
+				</div>
+			</div>
+			<!--End-breadcrumbs-->
+			<!--Action boxes-->
+			<div class="container-fluid">
+				<div id="main" class="page">
+					<div class="quick-actions_homepage">
+						<ul class="quick-actions">
+							<li class="bg_lb">
+								<a href="javascript:ShowPage('add')">
+									<i class="icon-dashboard"></i> 新增业务</a>
+							</li>
+							<li class="bg_lg">
+								<a href="javascript:ShowPage('modify')">
+									<i class="icon-signal"></i> 进度跟进</a>
+							</li>
+							<li class="bg_ly">
+								<a href="javascript:ShowPage('history')">
+									<i class="icon-inbox"></i> 历史业务
+								</a>
+							</li>
+							<li class="bg_lo">
+								<a href="javascript:ShowPage('conflict')">
+									<i class="icon-th"></i> 冲突情况</a>
+							</li>
+							<li class="bg_ls">
+								<a href="javascript:ShowPage('info')">
+									<i class="icon-fullscreen"></i> 个人信息</a>
+							</li>
+						</ul>
+					</div>
+				</div>
+				<div id="add" class="page row-fluid">
+					<div class="widget-box">
+						<div class="widget-title">
+							<span class="icon">
+								<i class="icon-align-justify"></i>
+							</span>
+							<h5>填写客户信息</h5>
+						</div>
+						<div class="widget-content nopadding">
+							<div class="form-horizontal">
+								<div class="control-group">
+									<label class="control-label">客户姓名：</label>
+									<div class="controls">
+										<input id="c_name" type="text" class="span11" placeholder="姓名" />
+									</div>
+								</div>
+								<div class="control-group">
+									<label class="control-label">客户公司：</label>
+									<div class="controls">
+										<input id="c_company" type="text" class="span11" placeholder="公司名" />
+									</div>
+								</div>
+								<div class="control-group">
+									<label class="control-label">客户电话：</label>
+									<div class="controls">
+										<input id="c_phone" type="tel" class="span11" placeholder="手机号" />
+									</div>
+								</div>
+								<div class="control-group">
+									<label class="control-label">业务内容：</label>
+									<div class="controls">
+										<textarea id="detail" class="span11"></textarea>
+									</div>
+								</div>
+								<div class="form-actions">
+									<button type="button" class="btn btn-success" onclick="UploadClient()">
+										提交
+									</button>
+								</div>
+							</div>
+						</div>
+					</div>
+				</div>
+				<div id="modify" class="page row-fluid">
+					<br />
+					<div id="modify-table"></div>
+					<br />
+					<input type="button" id="modify_button" style="display: none" class="btn btn-info btn-block"
+						value="提交" onclick="UploadProgress()" />
+				</div>
+				<div id="history" class="page row-fluid">
+					<br />
+					<div id="history-table"></div>
+				</div>
+				<div id="conflict" class="page row-fluid">
+					<br />
+					<div id="conflict-table"></div>
+				</div>
+				<div id="info" class="page row-fluid">
+					<div class="widget-box">
+						<div class="widget-title">
+							<span class="icon">
+								<i class="icon-align-justify"></i>
+							</span>
+							<h5>个人信息</h5>
+						</div>
+						<div class="widget-content nopadding">
+							<div class="form-horizontal">
+								<div class="control-group">
+									<label class="control-label">姓名</label>
+									<div class="controls">
+										<input id="info_name" type="text" class="span11" disabled="disabled" />
+									</div>
+								</div>
+								<div class="control-group">
+									<label class="control-label">公司</label>
+									<div class="controls">
+										<input id="info_company" type="text" class="span11" disabled="disabled" />
+									</div>
+								</div>
+								<div class="control-group">
+									<label class="control-label">手机号</label>
+									<div class="controls">
+										<input id="info_phone" type="tel" class="span11" disabled="disabled" />
+									</div>
+								</div>
+							</div>
+						</div>
+					</div>
+				</div>
+				<!--End-Action boxes-->
+				<!--end-main-container-part-->
+				<!--Footer-part-->
+				<div class="row-fluid">
+					<div id="footer" class="span12">
+						Copyright &copy; 2020.Company name All rights reserved.
+					</div>
+				</div>
+				<!--end-Footer-part-->
+				<script src="/wechat/js/jquery.min.js"></script>
+				<script src="/wechat/js/jquery.cookie-1.4.1.min.js"></script>
+				<script src="/wechat/js/bootstrap.min.js"></script>
+				<script src="/wechat/js/matrix.js"></script>
+				<script type="text/javascript" src="/wechat/tabulator/js/tabulator.min.js"></script>
+				<script type="text/javascript">
+					// 切换页面
+					function ShowPage(id) {
+						// 显示选中的页面
+						$(".page").hide();
+						$("#" + id).show();
+						// 导航栏高亮选中的选项
+						$(".option").removeClass("active");
+						$("#option_" + id).addClass("active");
+						// 标题栏新增当前页面信息
+						let e2c = {
+							add: "新增业务",
+							modify: "进度跟进",
+							history: "历史业务",
+							conflict: "冲突情况",
+							info: "个人信息",
+						};
+						$("#second").remove();
+						if (id != "main") {
+							$("#breadcrumb").append(
+								"<a href='javascript:ShowPage(\"" +
+								id +
+								"\")' id='second' class='current'>" +
+								e2c[id] +
+								"</a>"
+							);
+							ShowTable(id);
+						}
+						// 导航栏若展开则收起
+						if ($("#sidebar").attr("class") == "open") {
+							$("#sidebar a").click();
+						}
+					}
+					// 初始化
+					ShowPage("main");
+					// 方便获取table信息
+					var table;
+					// 获取个人信息
+					function ShowTable(id) {
+						if (id != "add") {
+							// 192.168.1.1/historyUser?session=114514
+							$.getJSON(
+								"/" +
+								id +
+								"User?session=" +
+								$.cookie("session"),
+								function(tabledata) {
+									var column_value = [];
+									switch (id) {
+										// 个人信息
+										case "info":
+											// tabledata =
+											// {
+											// 	name: "迟法和",
+											// 	company: "抗带",
+											// 	phone: "18926565737"
+											// }
+											$("#info_name").val(tabledata.name);
+											$("#info_company").val(
+												tabledata.company
+											);
+											$("#info_phone").val(
+												tabledata.phone
+											);
+											return;
+										case "modify":
+											// 进度跟进
+											// tabledata =
+											// 	[
+											// 		{
+											// 			c_name: "法和迟",
+											// 			c_company: "抗带（北京）",
+											// 			c_phone: "1919114514",
+											// 			detail: "合并能源大学",
+											// 			progress: "特别特别特别特别特别特别特别特别特别特别特别特别特别特别特别特别特别特别特别特别特别特别特别特别特别特别特别长",
+											// 		},
+											// 		{
+											// 			c_name: "天理",
+											// 			c_company: "提瓦特",
+											// 			c_phone: "1314520",
+											// 			detail: "你是草履虫吗？",
+											// 			progress: "没希望",
+											// 		},
+											// 	]
+											column_value = [{
+													title: "客户姓名",
+													field: "c_name",
+												},
+												{
+													title: "客户公司",
+													field: "c_company",
+												},
+												{
+													title: "客户电话",
+													field: "c_phone",
+												},
+												{
+													title: "业务内容",
+													field: "detail",
+													formatter: "textarea",
+													width: "50%",
+												},
+												{
+													title: "进度跟进",
+													field: "progress",
+													formatter: "textarea",
+													editor: "textarea",
+													width: "80%",
+													editorParams: {
+														selectContents: true,
+														verticalNavigation: "editor",
+														shiftEnterSubmit: true,
+													},
+												},
+												{
+													title: "标记为完成业务",
+													field: "finished",
+													vertAlign: "middle",
+													hozAlign: "center",
+													formatter: "tickCross",
+													editor: true,
+												},
+											];
+											$("#modify_button").show();
+											break;
+										case "history":
+											// 历史业务
+											// tabledata =
+											// 	[
+											// 		{
+											// 			c_name: "法和迟",
+											// 			c_company: "抗带（北京）",
+											// 			c_phone: "1919114514",
+											// 			detail: "合并能源大学",
+											// 			progress: "特别特别特别特别特别特别特别特别特别特别特别特别特别特别特别特别特别特别特别特别特别特别特别特别特别特别特别长",
+											// 		},
+											// 		{
+											// 			c_name: "天理",
+											// 			c_company: "提瓦特",
+											// 			c_phone: "1314520",
+											// 			detail: "你是草履虫吗？",
+											// 			progress: "不是",
+											// 		},
+											// 	]
+											column_value = [{
+													title: "客户姓名",
+													field: "c_name",
+												},
+												{
+													title: "客户公司",
+													field: "c_company",
+												},
+												{
+													title: "客户电话",
+													field: "c_phone",
+												},
+												{
+													title: "业务内容",
+													field: "detail",
+													formatter: "textarea",
+													width: "50%",
+												},
+												{
+													title: "进展情况",
+													field: "progress",
+													formatter: "textarea",
+													width: "80%",
+												},
+											];
+											break;
+											// 冲突记录
+										case "conflict":
+											// tabledata =
+											// 	[
+											// 		{
+											// 			name_b: "法和迟",
+											// 			company_b: "抗带（北京）",
+											// 			phone_b: "1919114514",
+											// 			conflict: "客户公司：孙笑川吧",
+											// 		},
+											// 		{
+											// 			name_b: "天理",
+											// 			company_b: "提瓦特",
+											// 			phone_b: "1314520",
+											// 			conflict: "客户电话：1145141919810",
+											// 		},
+											// 	];
+											column_value = [{
+													title: "冲突业务员",
+													field: "name_b",
+												},
+												{
+													title: "对方所属公司",
+													field: "company_b",
+												},
+												{
+													title: "对方手机号",
+													field: "phone_b",
+												},
+												{
+													title: "冲突内容",
+													field: "conflict",
+												},
+											];
+									}
+									table = new Tabulator("#" + id + "-table", {
+										data: tabledata,
+										layout: "fitDataFill",
+										columns: column_value,
+										height: "100%",
+									});
+								}
+							);
+						}
+					}
+					// 提交新业务
+					function UploadClient() {
+						if (confirm("确定要提交新业务吗？") == true) {
+							// 192.168.1.1/submitClient
+							$.post(
+								"/submitClient", JSON.stringify({
+									session: $.cookie("session"),
+									c_name: $("#c_name").val(),
+									c_company: $("#c_company").val(),
+									c_phone: $("#c_phone").val(),
+									detail: $("#detail").val(),
+								}),
+								function(res) {
+									// 返回值
+									// res =
+									// {
+									//     "result": 1,
+									//     "msg": "提交成功"
+									// }
+									console.log(res.msg);
+									alert(res.msg);
+								}
+							);
+						}
+					}
+					// 提交进度
+					function UploadProgress() {
+						if (confirm("确定要更新进度吗？") == true) {
+							// 192.168.1.1/submitProgress
+							$.post(
+								"/submitProgress", JSON.stringify({
+									session: $.cookie("session"),
+									table_data: table.getData(),
+								}),
+								function(res) {
+									// 返回值
+									// res =
+									// {
+									//     "result": 1,
+									//     "msg": "提交成功"
+									// }
+									console.log(res.msg);
+									alert(res.msg);
+								}
+							);
+						}
+					}
+				</script>
+			</div>
+		</div>
+	</body>
+</html>

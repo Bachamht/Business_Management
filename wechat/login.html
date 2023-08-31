@@ -1,0 +1,187 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+	<head>
+		<title>登录</title>
+		<meta charset="UTF-8" />
+		<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+		<link rel="stylesheet" href="/wechat/css/bootstrap.min.css" />
+		<link rel="stylesheet" href="/wechat/css/bootstrap-responsive.min.css" />
+		<link rel="stylesheet" href="/wechat/css/matrix-login.css" />
+		<link href="/wechat/font-awesome/css/font-awesome.css" rel="stylesheet" />
+	</head>
+
+	<body>
+		<div id="loginbox">
+			<form id="loginform" class="form-vertical" action="index.html">
+				<div class="control-group normal_text">
+					<h3><img src="/wechat/img/logo.png" alt="Logo" /></h3>
+				</div>
+				<div class="control-group">
+					<div class="controls">
+						<div class="main_input_box">
+							<span class="add-on bg_lg"><i class="icon-phone"></i></span><input id="account" type="text"
+								placeholder="手机号" />
+						</div>
+					</div>
+				</div>
+				<div class="control-group">
+					<div class="controls">
+						<div class="main_input_box">
+							<span class="add-on bg_ly"><i class="icon-lock"></i></span><input id="password"
+								type="password" placeholder="密码" />
+						</div>
+					</div>
+				</div>
+				<div class="form-actions">
+					<span class="pull-left"><a href="#" class="flip-link btn btn-info" id="to-recover">注册</a></span>
+					<span class="pull-right"><a href="#" id="login" class="btn btn-success">登录</a></span>
+				</div>
+			</form>
+			<form id="recoverform" action="#" class="form-vertical">
+				<p class="normal_text">添加新的用户信息</p>
+				<div class="control-group">
+					<div class="main_input_box">
+						<span class="add-on bg_db"><i class="icon-user"></i></span><input id="name" type="text"
+							placeholder="姓名" />
+					</div>
+				</div>
+				<div class="control-group">
+					<div class="main_input_box">
+						<span class="add-on bg_lb"><i class="icon-coffee"></i></span><input id="company" type="text"
+							placeholder="所属公司" />
+					</div>
+				</div>
+				<div class="control-group">
+					<div class="main_input_box">
+						<span class="add-on bg_lg"><i class="icon-phone"></i></span><input id="phone" type="text"
+							placeholder="手机号" />
+					</div>
+				</div>
+				<div class="control-group">
+					<div class="main_input_box">
+						<span class="add-on bg_ly"><i class="icon-lock"></i></span><input id="passwrd" type="text"
+							placeholder="密码" />
+					</div>
+				</div>
+				<div class="control-group">
+					<div class="main_input_box">
+						<span class="add-on bg_ly"><i class="icon-lock"></i></span><input id="confirm" type="text"
+							placeholder="确认密码" />
+					</div>
+				</div>
+				<div class="form-actions">
+					<span class="pull-left"><a href="#" class="flip-link btn btn-success" id="to-login">&laquo;
+							返回登录</a></span>
+					<span class="pull-right"><a href="#" id="register" class="btn btn-info">提交</a></span>
+				</div>
+			</form>
+		</div>
+		<script src="/wechat/js/jquery.min.js"></script>
+		<script src="/wechat/js/jquery.cookie-1.4.1.min.js"></script>
+		<script src="/wechat/js/matrix.login.js"></script>
+		<script>
+			// 登录
+			function Login(account, password) {
+				// 192.168.1.1/login
+				$.post(
+					"/login", JSON.stringify({
+						account: account,
+						password: password,
+					}),
+					function(res) {
+						// 返回值
+						// res = {
+						// 	"result": 1,
+						// 	"msg": "登录成功",
+						// 	"isadmin": false,
+						// 	"session": "这里是base64加密后的session"
+						// };
+						// res =
+						// {
+						//     "result": 0,
+						//     "msg": "用户不存在，请注册"
+						// };
+						// res =
+						// {
+						//     "result": -1,
+						//     "msg": "密码错误，请重新输入"
+						// };
+						console.log(res.msg);
+						switch (res.result) {
+							case 1:
+								if (
+									$.cookie("account") == undefined ||
+									$.cookie("password") == undefined
+								) {
+									$.cookie("account", account, {
+										expires: 3,
+									});
+									$.cookie("password", password, {
+										expires: 3,
+									});
+								}
+								$.cookie("session", res.session);
+								if (res.isadmin) {
+									window.location.href = "/adminPage";
+								} else {
+									window.location.href = "/userPage";
+								}
+								break;
+							case 0:
+								alert(res.msg);
+								$("#to-recover").click();
+								break;
+							case -1:
+								alert(res.msg);
+								$("#password").val("");
+						}
+					}
+				);
+			}
+			$("#login").click(function() {
+				Login(
+					window.btoa($("#account").val()),
+					window.btoa($("#password").val())
+				);
+			});
+			// 利用cookie登录
+			if (
+				$.cookie("account") != undefined &&
+				$.cookie("password") != undefined
+			) {
+				Login($.cookie("account"), $.cookie("password"));
+			} else {
+				alert("登录信息过期，请重新登录！");
+			}
+			// 注册
+			$("#register").click(function() {
+				$.post(
+					"/register", JSON.stringify({
+						name: $("#name").val(),
+						company: $("#company").val(),
+						phone: window.btoa($("#phone").val()),
+						passwrd: window.btoa($("#passwrd").val()),
+					}),
+					function(res) {
+						// 返回值
+						// res =
+						// {
+						//     "result": 1,
+						//     "msg": "信息已成功提交，等待管理员审核"
+						// };
+						// res =
+						// {
+						//     "result": -1,
+						//     "msg": "该手机号已被注册，若有问题请联系网站管理员"
+						// };
+						console.log(res.msg);
+						alert(res.msg);
+						if (res.result == 1) {
+							window.location.reload();
+						}
+					}
+				);
+			});
+		</script>
+	</body>
+</html>

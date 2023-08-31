@@ -1,0 +1,384 @@
+<!DOCTYPE html>
+
+<html lang="zh-CN">
+	<head>
+		<title>管理页面</title>
+		<meta charset="UTF-8" />
+		<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+		<link rel="stylesheet" href="/wechat/css/bootstrap.min.css" />
+		<link rel="stylesheet" href="/wechat/css/bootstrap-responsive.min.css" />
+		<link rel="stylesheet" href="/wechat/css/matrix-style.css" />
+		<link rel="stylesheet" href="/wechat/css/matrix-media.css" />
+		<link href="/wechat/font-awesome/css/font-awesome.css" rel="stylesheet" />
+		<link href="/wechat/tabulator/css/tabulator_simple.min.css" rel="stylesheet" />
+	</head>
+
+	<body>
+		<!--Header-part-->
+		<div id="header">
+			<h1></h1>
+		</div>
+		<!--close-Header-part-->
+		<!--sidebar-menu-->
+		<div id="sidebar">
+			<a href="#" class="visible-phone"><i class="icon icon-home"></i> 快速导航</a>
+			<ul>
+				<li id="option_main" class="option">
+					<a href="javascript:ShowPage('main')"><i class="icon icon-home"></i> <span>首页</span></a>
+				</li>
+				<li id="option_add" class="option">
+					<a href="javascript:ShowPage('add')"><i class="icon icon-signal"></i>
+						<span>查看业务员申请</span></a>
+				</li>
+				<li id="option_history" class="option">
+					<a href="javascript:ShowPage('history')"><i class="icon icon-inbox"></i>
+						<span>查看历史业务</span></a>
+				</li>
+				<li id="option_conflict" class="option">
+					<a href="javascript:ShowPage('conflict')"><i class="icon icon-th"></i>
+						<span>查看冲突记录</span></a>
+				</li>
+				<li id="option_info" class="option">
+					<a href="javascript:ShowPage('info')"><i class="icon icon-fullscreen"></i>
+						<span>查看业务员列表</span></a>
+				</li>
+			</ul>
+		</div>
+		<!--sidebar-menu-->
+		<!--main-container-part-->
+		<div id="content">
+			<!--breadcrumbs-->
+			<div id="content-header">
+				<div id="breadcrumb">
+					<a href="javascript:ShowPage('main')" title="Go to Home" class="tip-bottom"><i
+							class="icon-home"></i> 首页</a>
+				</div>
+			</div>
+			<!--End-breadcrumbs-->
+			<!--Action boxes-->
+			<div class="container-fluid">
+				<div id="main" class="page">
+					<div class="quick-actions_homepage">
+						<ul class="quick-actions">
+							<li class="bg_lb">
+								<a href="javascript:ShowPage('add')">
+									<i class="icon-dashboard"></i>
+									查看业务员申请</a>
+							</li>
+							<li class="bg_lg">
+								<a href="javascript:ShowPage('history')">
+									<i class="icon-signal"></i> 查看历史业务</a>
+							</li>
+							<li class="bg_ly">
+								<a href="javascript:ShowPage('conflict')">
+									<i class="icon-inbox"></i> 查看冲突记录
+								</a>
+							</li>
+							<li class="bg_lo">
+								<a href="javascript:ShowPage('info')">
+									<i class="icon-th"></i> 查看业务员列表</a>
+							</li>
+						</ul>
+					</div>
+				</div>
+				<div id="add" class="page">
+					<br />
+					<div id="add-table"></div>
+					<br />
+					<input type="button" id="add_button" class="btn btn-info btn-block" value="提交"
+						onclick="UploadResult()" style="display: none" />
+				</div>
+				<div id="history" class="page">
+					<br />
+					<div id="history-table"></div>
+				</div>
+				<div id="conflict" class="page">
+					<br />
+					<div id="conflict-table"></div>
+				</div>
+				<div id="info" class="page">
+					<br />
+					<div id="info-table"></div>
+				</div>
+				<!--End-Action boxes-->
+				<!--end-main-container-part-->
+				<!--Footer-part-->
+				<div class="row-fluid">
+					<div id="footer" class="span12">
+						Copyright &copy; 2020.Company name All rights reserved.
+					</div>
+				</div>
+				<!--end-Footer-part-->
+				<script src="/wechat/js/jquery.min.js"></script>
+				<script src="/wechat/js/jquery.cookie-1.4.1.min.js"></script>
+				<script src="/wechat/js/bootstrap.min.js"></script>
+				<script src="/wechat/js/matrix.js"></script>
+				<script type="/wechat/text/javascript" src="/wechat/tabulator/js/tabulator.min.js"></script>
+				<script type="/wechat/text/javascript">
+					// 切换页面
+					function ShowPage(id) {
+						// 显示选中的页面
+						$(".page").hide();
+						$("#" + id).show();
+						// 导航栏高亮选中的选项
+						$(".option").removeClass("active");
+						$("#option_" + id).addClass("active");
+						// 刷新表格
+						// 标题栏新增当前页面信息
+						let e2c = {
+							add: "查看业务员申请",
+							history: "查看历史业务",
+							conflict: "查看冲突情况",
+							info: "查看业务员列表",
+						};
+						$("#second").remove();
+						if (id != "main") {
+							$("#breadcrumb").append(
+								"<a href='javascript:ShowPage(\"" +
+								id +
+								"\")' id='second' class='current'>" +
+								e2c[id] +
+								"</a>"
+							);
+							ShowTable(id);
+						}
+						// 导航栏若展开则收起
+						if ($("#sidebar").attr("class") == "open") {
+							$("#sidebar a").click();
+						}
+					}
+					// 初始化
+					ShowPage("main");
+					// 显示表格
+					var table; // 日后方便获取表格信息
+					function ShowTable(id) {
+						// 192.168.1.1/addAdmin?session=114514
+						$.getJSON(
+							"/" + id + "Admin?session=" + $.cookie("session"),
+							function(tabledata) {
+								switch (id) {
+									// 业务员申请
+									case "add":
+										// tabledata =
+										//     [
+										//         {
+										//             name: "迟法和",
+										//             company: "抗带",
+										//             phone: "18926565737",
+										//             permitted: false
+										//         },
+										//         {
+										//             name: "派蒙",
+										//             company: "原神",
+										//             phone: "1145141919810",
+										//             permitted: false
+										//         },
+										//     ];
+										column_value = [{
+												title: "业务员",
+												field: "name"
+											},
+											{
+												title: "所属公司",
+												field: "company",
+											},
+											{
+												title: "手机号",
+												field: "phone"
+											},
+											{
+												title: "是否批准",
+												field: "permitted",
+												hozAlign: "center",
+												formatter: "tickCross",
+												editor: true,
+											},
+										];
+										break;
+										// 历史业务
+									case "history":
+										// tabledata =
+										//     [
+										//         {
+										//             name: "迟法和",
+										//             company: "抗带",
+										//             phone: "18926565737",
+										//             c_name: "法和迟",
+										//             c_company: "抗带（北京）",
+										//             c_phone: "1919114514",
+										//             detail: "合并能源大学",
+										//             progress: "没希望",
+										//             finished: false
+										//         },
+										//         {
+										//             name: "派蒙",
+										//             company: "原神",
+										//             phone: "1145141919810",
+										//             c_name: "天理",
+										//             c_company: "提瓦特",
+										//             c_phone: "1314520",
+										//             detail: "你是草履虫吗？",
+										//             progress: "不是",
+										//             finished: true
+										//         },
+										//     ]
+										column_value = [{
+												title: "业务员",
+												field: "name"
+											},
+											{
+												title: "所属公司",
+												field: "company",
+											},
+											{
+												title: "手机号",
+												field: "phone"
+											},
+											{
+												title: "客户姓名",
+												field: "c_name",
+											},
+											{
+												title: "客户公司",
+												field: "c_company",
+											},
+											{
+												title: "客户电话",
+												field: "c_phone",
+											},
+											{
+												title: "业务内容",
+												field: "detail",
+											},
+											{
+												title: "进展情况",
+												field: "progress",
+											},
+											{
+												title: "是否已完成",
+												field: "finished",
+												hozAlign: "center",
+												formatter: "tickCross",
+												sorter: "boolean",
+											},
+										];
+										break;
+										// 冲突记录
+									case "conflict":
+										// tabledata =
+										//     [
+										//         {
+										//             name_a: "迟法和",
+										//             company_a: "抗带",
+										//             phone_a: "18926565737",
+										//             name_b: "法和迟",
+										//             company_b: "抗带（北京）",
+										//             phone_b: "1919114514",
+										//             conflict: "客户公司：孙笑川吧",
+										//         },
+										//         {
+										//             name_a: "派蒙",
+										//             company_a: "原神",
+										//             phone_a: "1145141919810",
+										//             name_b: "天理",
+										//             company_b: "提瓦特",
+										//             phone_b: "1314520",
+										//             conflict: "客户电话：1145141919810",
+										//         },
+										//     ];
+										column_value = [{
+												title: "业务员A",
+												field: "name_a",
+											},
+											{
+												title: "所属公司A",
+												field: "company_a",
+											},
+											{
+												title: "手机号A",
+												field: "phone_a",
+											},
+											{
+												title: "业务员B",
+												field: "name_b",
+											},
+											{
+												title: "所属公司B",
+												field: "company_b",
+											},
+											{
+												title: "手机号B",
+												field: "phone_b",
+											},
+											{
+												title: "冲突内容",
+												field: "conflict",
+											},
+										];
+										break;
+										// 业务员列表
+									case "info":
+										// tabledata =
+										//     [
+										//         {
+										//             name: "迟法和",
+										//             company: "抗带",
+										//             phone: "18926565737"
+										//         },
+										//         {
+										//             name: "派蒙",
+										//             company: "原神",
+										//             phone: "1145141919810"
+										//         },
+										//     ];
+										column_value = [{
+												title: "业务员",
+												field: "name"
+											},
+											{
+												title: "所属公司",
+												field: "company",
+											},
+											{
+												title: "手机号",
+												field: "phone"
+											},
+										];
+								}
+								table = new Tabulator("#" + id + "-table", {
+									data: tabledata,
+									layout: "fitDataFill",
+									columns: column_value,
+								});
+								$("#add_button").show();
+							}
+						);
+					}
+					// 提交批准的申请
+					function UploadResult() {
+						// console.log({ "session": $.cookie("session"), "table_data": table.getData() });
+						if (confirm("确定要提交结果吗？") == true) {
+							// 192.168.1.1/submitApply
+							$.post(
+								"/submitApply", JSON.stringify({
+									session: $.cookie("session"),
+									table_data: table.getData(),
+								}),
+								function(res) {
+									// 返回值
+									// res =
+									// {
+									//     "result": 1,
+									//     "msg": "提交成功"
+									// }
+									console.log(res.msg);
+									alert(res.msg);
+								}
+							);
+						}
+					}
+				</script>
+			</div>
+		</div>
+	</body>
+</html>
