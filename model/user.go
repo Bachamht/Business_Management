@@ -31,6 +31,10 @@ type Conflict_userView struct {
 	Company_b      string
 	Phone_b        string
 	ConfictContent string
+	ClientName     string
+	ClientPhone    string
+	ClientCompany  string
+	Clientdetail   string
 }
 
 // 查看业务类型
@@ -52,13 +56,30 @@ type UpdateBusiness struct {
 	Finished bool   `json:"finished"`
 }
 
+// 冲突客户信息
+type ConflictClient struct {
+	ClientName    string
+	ClientPhone   string
+	ClientCompany string
+	Clientdetail  string
+}
+
 // 新增客户信息
 func SubmitClientInfo(clientInfo *Client_Info, pNumber string) error {
+
 	var saleMan *SaleMan_Info
+	conflictClient := &ConflictClient{}
+
 	saleMan = GetPersonnalInfo(pNumber)
 
+	conflictClient.ClientName = clientInfo.ClientName
+	conflictClient.ClientPhone = clientInfo.Phone
+	conflictClient.ClientCompany = clientInfo.Company
+	conflictClient.Clientdetail = clientInfo.Detail
+
 	conflictingClients := checkConflicts(clientInfo, pNumber)
-	err := insertConflictInfo(saleMan, conflictingClients)
+
+	err := insertConflictInfo(saleMan, conflictingClients, conflictClient)
 	if err != nil {
 		fmt.Println("Error inserting conflict data into database:", err)
 	}
@@ -280,15 +301,14 @@ func checkConflicts(clientInfo *Client_Info, pNumber string) *[]SaleMan_Info {
 }
 
 // 插入冲突消息
-func insertConflictInfo(saleMan *SaleMan_Info, conflictingClients *[]SaleMan_Info) error {
+func insertConflictInfo(saleMan *SaleMan_Info, conflictingClients *[]SaleMan_Info, clientInfo *ConflictClient) error {
 
 	for _, conflictingClient := range *conflictingClients {
-		insertQuery := "INSERT INTO t_conflict_info (name, phone, company, conflict_content, name_b, phone_b, company_b) VALUES (?, ?, ?, ?, ?, ?, ?)"
-		_, err := DB.Exec(insertQuery, saleMan.Name, saleMan.PhoneNumber, saleMan.Company, conflictingClient.ConfictContent, conflictingClient.Name, conflictingClient.PhoneNumber, conflictingClient.Company)
+		insertQuery := "INSERT INTO t_conflict_info (name, phone, company, conflict_content, name_b, phone_b, company_b, client_name, client_number, client_company, detail ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)"
+		_, err := DB.Exec(insertQuery, saleMan.Name, saleMan.PhoneNumber, saleMan.Company, conflictingClient.ConfictContent, conflictingClient.Name, conflictingClient.PhoneNumber, conflictingClient.Company, clientInfo.ClientName, clientInfo.ClientPhone, clientInfo.ClientCompany, clientInfo.Clientdetail)
 		if err != nil {
 			return err
 		}
-
 	}
 
 	return nil
@@ -302,7 +322,7 @@ func ViewConflict(pNumber string) ([]Conflict_userView, error) {
 	}
 
 	var ConflictInfo []Conflict_userView
-	query := "SELECT name_b, phone_b, company_b, conflict_content FROM t_conflict_info WHERE phone = ? "
+	query := "SELECT name_b, phone_b, company_b, conflict_content,  client_name, client_number, client_company, detail FROM t_conflict_info WHERE phone = ? "
 
 	rows, err := DB.Query(query, phoneNumber)
 	if err != nil {
@@ -311,7 +331,7 @@ func ViewConflict(pNumber string) ([]Conflict_userView, error) {
 
 	for rows.Next() {
 		var conflict Conflict_userView
-		if err := rows.Scan(&conflict.Name_b, &conflict.Phone_b, &conflict.Company_b, &conflict.ConfictContent); err != nil {
+		if err := rows.Scan(&conflict.Name_b, &conflict.Phone_b, &conflict.Company_b, &conflict.ConfictContent, &conflict.ClientName, &conflict.ClientPhone, &conflict.ClientCompany, &conflict.Clientdetail); err != nil {
 			return nil, err
 		}
 		ConflictInfo = append(ConflictInfo, conflict)

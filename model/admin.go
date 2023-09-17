@@ -35,6 +35,10 @@ type ConflictAdmin struct {
 	Company_b       string
 	Phone_b         string
 	ConflictContent string
+	ClientName      string
+	ClientPhone     string
+	ClientCompany   string
+	Clientdetail    string
 }
 
 // 查看业务员申请
@@ -118,7 +122,7 @@ func InfoSaleMan() ([]SaleMan, error) {
 func ViewConflictAdmin() ([]ConflictAdmin, error) {
 
 	var ConflictAd []ConflictAdmin
-	query := "SELECT name_b, phone_b, company_b, name, phone, company, conflict_content FROM t_conflict_info"
+	query := "SELECT name_b, phone_b, company_b, name, phone, company, conflict_content, client_name, client_number, client_company, detail  FROM t_conflict_info"
 	rows, err := DB.Query(query)
 	if err != nil {
 		return nil, err
@@ -126,7 +130,7 @@ func ViewConflictAdmin() ([]ConflictAdmin, error) {
 	for rows.Next() {
 
 		var ConflictA ConflictAdmin
-		err := rows.Scan(&ConflictA.Name_b, &ConflictA.Phone_b, &ConflictA.Company_b, &ConflictA.Name_a, &ConflictA.Phone_a, &ConflictA.Company_a, &ConflictA.ConflictContent)
+		err := rows.Scan(&ConflictA.Name_b, &ConflictA.Phone_b, &ConflictA.Company_b, &ConflictA.Name_a, &ConflictA.Phone_a, &ConflictA.Company_a, &ConflictA.ConflictContent, &ConflictA.ClientName, &ConflictA.ClientPhone, &ConflictA.ClientCompany, &ConflictA.Clientdetail)
 		if err != nil {
 			return nil, err
 		}
